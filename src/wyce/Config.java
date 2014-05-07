@@ -77,7 +77,7 @@ public class Config {
 //	public static final String FILE49 = "./whiley/prePostconditions.wyil"; // exclude 6/5
 //	public static final String FILE50 = "./whiley/typeInvariants.wyil"; //// ignore => David 29/4
 //	public static final String FILE51 = "./whiley/recursiveTypes.wyil"; //// ignore => David 29/4
-//	public static final String FILE52 = "./whiley/.wyil";
+	public static final String FILE52 = "./whiley/whileMinimal.wyil";
 //	public static final String FILE53 = "./whiley/.wyil";
 //	public static final String FILE54 = "./whiley/.wyil";
 

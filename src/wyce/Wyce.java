@@ -8,7 +8,7 @@ import wyil.lang.WyilFile;
 public class Wyce {
 
 	public static void main(String[] args){
-		String filename = Config.FILE46;
+		String filename = Config.FILE52;
 
 		if(args.length > 0)
 			filename = args[0];

@@ -2,28 +2,20 @@
 
 #include "cCompiler/mattCompiler.h"
 #include "cCompiler/mattCompiler_library.c"
-Any sum ( Any[] );
 
 int main (){
-  Any a3 = Int(3);
-  Any a4 = Int(4);
-  Any a5 = Int(5);
-  Any a6 = Int(6);
-  Any a7[] = {a3, a4, a5, a6};
-  Any a2 = sum ( a7 );
-  Any a1 = a2;
-  Any a11 = Str("returns => ");
-  Any a12 = a1;
-  a12 = toStr ( a12 );
-  Any a13 = Str( strcat ( a11.s , a12.s ) );
-  println ( a13 );
-  return;
-}
-
-Any sum ( Any a0[] ){
   Any a2 = Int(0);
   Any a1 = a2;
-  Any a4 = Int(0);
-  Any a3 = a4;
   label0: ;
-  Any a7 = Int( sizeof( a0 ) );
+  Any a4 = Int(5);
+  printf("here");
+  if ( dataAsInt( a1 ) >= dataAsInt( a4 ) ) { goto label0; };
+  Any a8 = a1;
+  println ( a8 );
+  Any a10 = Int(1);
+  Any a11 = add( a1 , a10);
+  a1 = a11;
+  goto label0;
+  labelEnd: ;
+  return;
+}

@@ -10,7 +10,7 @@ To achieve this requires developing an Intermediate to Source Compiler. In essen
 
 C is used because of the wide range of cpu's the gcc compiler caters for.
 
-This will ultimately enable developers to write in Whiley, generate verified code suitable for safety critical systems (eg: car brake and acceleration systems) and compile direct to an image ready for flashing to thier desired cpu.
+This will ultimately enable developers to write in Whiley, generate verified code suitable for safety critical systems (eg: car brake and acceleration systems) and compile direct to an image ready for flashing to their desired cpu.
 
 This projects focus is on getting the Crazyflie to do stuff with Whiley code. I cannot promise the best code in the world, but hopefully along the way I have resolved some tricky coding issues and my code is easy(ish) to follow.
 
