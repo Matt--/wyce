@@ -91,7 +91,7 @@ int main (){
   println ( a166 );
   Any a170 = f_bool25 ( a2, a4 );
   println ( a170 );
-  return;
+  return 0;
 }
 
 Any f_bool1 ( Any a0, Any a1 ){

@@ -38,7 +38,7 @@ int main (){
   println ( a60 );
   Any a66 = f_char10 ( a2, a4 );
   println ( a66 );
-  return;
+  return 0;
 }
 
 Any f_char1 ( Any a0, Any a1 ){

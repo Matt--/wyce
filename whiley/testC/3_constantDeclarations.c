@@ -36,5 +36,5 @@ int main (){
   Any a35 = Str("6.2831853080");
   Any a36 = Str( strcat ( a34.s , a35.s ) );
   println ( a36 );
-  return;
+  return 0;
 }

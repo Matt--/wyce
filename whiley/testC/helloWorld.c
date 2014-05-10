@@ -6,5 +6,5 @@
 int main (){
   Any a4 = Str("Hello World");
   println ( a4 );
-  return;
+  return 0;
 }

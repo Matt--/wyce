@@ -47,7 +47,7 @@ int main (){
   a7 = a58;
   Any a65 = a7;
   println ( a65 );
-  return;
+  return 0;
 }
 
 Any f_compare1 ( Any a0, Any a1 ){

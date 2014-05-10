@@ -11,7 +11,7 @@ int main (){
   Any a5 = a6;
   Any a12 = a5;
   println ( a12 );
-  return;
+  return 0;
 }
 
 Any f_add ( Any a0, Any a1 ){

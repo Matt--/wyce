@@ -100,6 +100,7 @@ bool freeTuple(Any a){
 	}
 	// free the array pointer
 	free(a.ptr);
+	return true;
 }
 
 //Any Tuple3(Any a, Any b, Any c)
@@ -126,7 +127,7 @@ bool freeTuple(Any a){
 
 
 Any toStr(Any a){
-	Any* x_address = ((Any**)a.ptr)[0];
+//	Any* x_address = ((Any**)a.ptr)[0];
 //		printf ("x address is %d\n", x_address);
 //		printf ("x is %d\n", x_address->i);
 //	int y = ((Any**)a.ptr)[1]->i;
@@ -178,6 +179,7 @@ Any toStr(Any a){
 		return b;
 	}
 	error(1, "error, toStr(Any); type unknown");
+	return Str("");
 }
 
 int dataAsInt(Any a){
@@ -187,6 +189,7 @@ int dataAsInt(Any a){
 //	if(a.type == STR_TYPE){ int r = (int)a.s; return r; } //NB pointer cast to int
 	if(a.type == BOOL_TYPE){ return (int)a.b; }
 	error(1, "error, dataAsInt(Any); type unknown");
+	return 0;
 }
 
 //// Math operations

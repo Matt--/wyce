@@ -21,7 +21,7 @@ int main (){
   a17 = toStr ( a17 );
   Any a18 = Str( strcat ( a16.s , a17.s ) );
   println ( a18 );
-  return;
+  return 0;
 }
 
 Any swap ( Any a0 ){

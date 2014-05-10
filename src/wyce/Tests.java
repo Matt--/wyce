@@ -129,6 +129,16 @@ public class Tests {
 		assertEquals(expect, result);
 		assertEquals(expect.length(), result.length());
 	}
+	@Test
+	public void test_file52() {
+		String[] args = {Config.FILE52};
+		Wyce.main(args);
+		String result = Config.readFile(Config.OUTPUT_FILE);
+		String expect = Config.readFile("whileMinimal");
+
+		assertEquals(expect, result);
+		assertEquals(expect.length(), result.length());
+	}
 
 
 }

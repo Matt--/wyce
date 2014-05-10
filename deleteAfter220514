@@ -1,0 +1,57 @@
+#define LIBRARY_TESTING 0
+
+#include "cCompiler/mattCompiler.h"
+#include "cCompiler/mattCompiler_library.c"
+Any sum ( Any[] );
+
+int main (){
+  Any a3 = Int(3);
+  Any a4 = Int(4);
+  Any a5 = Int(5);
+  Any a6 = Int(6);
+  Any a7[] = {a3, a4, a5, a6};
+  Any a2 = sum ( a7 );
+  Any a1 = a2;
+  Any a11 = Str("returns => ");
+  Any a12 = a1;
+  a12 = toStr ( a12 );
+  Any a13 = Str( strcat ( a11.s , a12.s ) );
+  println ( a13 );
+  return;
+}
+
+Any sum ( Any a0[] ){
+  // a1 sum
+  Any a2 = Int(0);
+  Any a1 = a2;
+  
+  // a3 counter
+  Any a4 = Int(0);
+  Any a3 = a4;
+  
+  // loop (a1, a3)
+  label0: ;
+  
+  // while condition
+  Any a7 = Int( sizeof( a0 ) );
+  if ( dataAsInt( a3 ) >= dataAsInt( a7 ) ) { goto label0; };
+  
+  // used in ignored asserts
+  Any a17 = Int(0);
+  Any a18 = Int( sizeof( a0 ) );
+  
+  // add value to a1 from index a3
+  Any a11 = a0[a3.i];
+  Any a12 = add( a1 , a11);
+  a1 = a12;
+  
+  // increment a3 counter
+  Any a14 = Int(1);
+  Any a15 = add( a3 , a14);
+  a3 = a15;
+  
+  goto label0;
+  labelEnd: ;
+  return a1;
+}
+

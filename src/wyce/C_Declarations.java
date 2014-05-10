@@ -48,8 +48,8 @@ public class C_Declarations {
 				if(!first) r += "," +SP;
 				Type type = itr.next();
 				r += "Any";
-				// is this a list?
-				if(type instanceof Type.List) r += "[]";
+				// is this a list? add[] --perhaps add an array size element? or do this in Whiley instead as SOP.
+				if(type instanceof Type.List) r += "[]"; //, Any";
 				r += SP;
 				first = false;
 			}

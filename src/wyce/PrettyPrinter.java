@@ -300,6 +300,10 @@ public class PrettyPrinter {
 					token = token.substring(0, index) + SP;
 					token += Config.PRE +i;
 					token += "[]";
+					tokens[i++] = token;
+					// next element is arraySize
+					tokens[i++] = "Any " + Config.ARRAY_SIZE;
+					continue;
 				}
 				tokens[i++] = token;
 			}

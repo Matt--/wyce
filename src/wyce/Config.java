@@ -14,6 +14,8 @@ public class Config {
 	public static final String PREFIX = "a";
 
 	public static final String PRE = Config.PREFIX;
+	public static final String PRE_LOOP = "loop_start_";
+	public static final String ARRAY_SIZE = "arraySize";
 	public static final String INDENT = "  ";
 	public static final String OUTPUT_FILE = "a.c";
 	public static final String COMPILER_h = 		"cCompiler/mattCompiler.h";

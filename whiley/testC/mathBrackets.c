@@ -22,7 +22,7 @@ int main (){
   a7 = a24;
   Any a31 = a7;
   println ( a31 );
-  return;
+  return 0;
 }
 
 Any f_bracket1 ( Any a0, Any a1, Any a2 ){

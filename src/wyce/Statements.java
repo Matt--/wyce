@@ -396,26 +396,31 @@ public class Statements{
 	 * check if count is greater than number of elements
 	 * assign this ith value to the target var
 	 * increment count
+	 *
+	 * C throws a wobbly when you attempt a sizeof on an array passed as a parameter.
+	 * The standard solution (stackoverflow) is to pass the size of the list at the same time.
 	 */
 	private String createC(int opcode, Code.ForAll code){
 		String r = "";
 		r += "int count =" +SP;
 		r += code.modifiedOperands.length == 0 ? "0" : PRE+code.sourceOperand +"[0]";
 		r += ";\n  "; // includes a tab
-		r += code.target + ": ;\n  "; // label // includes a tab
 
-		// ref: Code.LoopEnd for "labelEnd" label.
-		// TODO solution needed for nested loops, labelEnd is not enough.
+		r += Config.PRE_LOOP + code.target + ": ;\n  "; // Top of loop label
+
 		r += "if(count ==" +SP;
 		r += code.modifiedOperands.length == 0 ?
-			"sizeof(" +PRE+code.sourceOperand +")-1 )" :
+			Config.ARRAY_SIZE + ".i )" :
 			PRE+code.sourceOperand +"[1])";
-		r += "{ goto labelEnd; }\n  ";
+		r += "{ goto" + SP;
+		r += code.target + ";" +SP;
+		r += "}\n  ";
 
 		r += firstDeclaration(code);
 		r += PRE + code.indexOperand +SP;
 		r += "=" +SP;
 		r += PRE + code.sourceOperand +"[count];\n  "; // includes a tab
+
 		r += "count++;";
 
 		return r;
@@ -532,6 +537,11 @@ public class Statements{
 		}
 		return r + ";";
 	}
+	/*
+	 * lengthof
+	 * In C length of an array is size of the array divided by the size of the first element
+	 *      sizeof(A) / sizeof(A[0])
+	 */
 	private String createC(int opcode, Code.LengthOf code){
 		String r = "";
 		r += firstDeclaration(code);
@@ -541,21 +551,27 @@ public class Statements{
 		r += "sizeof(" +SP;
 		r += PRE + code.operand + SP;
 		r +=       ")" +SP;
+		r += "/" +SP;
+		r += "sizeof(" +SP;
+		r += PRE + code.operand +"[0]" +SP;
+		r +=       ")" +SP;
 		r +=    ")";
 		return r + ";";
 	}
 	private String createC(int opcode, Code.Loop code){
 		String r = "";
-		r += code.target + ": ;";
+		r += Config.PRE_LOOP + code.target + ": ;";
 
 		return r;
 	}
 	private String createC(int opcode, Code.LoopEnd code){
 		String r = "";
 		r += "goto" +SP;
-		r += code.label;
+		r += Config.PRE_LOOP + code.label;
 		r += ";\n  ";
-		r += "labelEnd: ;";
+		r += code.label + ": ;";
+//		r += ";\n  ";
+//		r += "labelEnd: ;";
 		return r;
 	}
 	private String createC(int opcode, Code.NewList code){
@@ -614,8 +630,13 @@ public class Statements{
 	private String createC(int opcode, Code.Return code){
 		// return ; OR return operand ;
 		String r = "";
-		r += "return";
-		r += opcode==Code.OPCODE_return ? SP +PRE +code.operand : "";
+		r += "return" +SP;
+		switch(opcode){
+		case(1):
+			r += "0"; break;
+		case(Code.OPCODE_return):
+			r += PRE +code.operand; break;
+		}
 		return r + ";";
 	}
 	private String createC(int opcode, Code.TupleLoad code){

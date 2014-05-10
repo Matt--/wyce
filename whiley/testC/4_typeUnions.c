@@ -49,7 +49,7 @@ int main (){
   a40 = toStr ( a40 );
   Any a42 = Str( strcat ( a39.s , a40.s ) );
   println ( a42 );
-  return;
+  return 0;
 }
 
 Any id ( Any a0 ){

@@ -16,7 +16,7 @@ int main (){
   a7 = a15;
   Any a21 = a7;
   println ( a21 );
-  return;
+  return 0;
 }
 
 Any f_string1 ( Any a0, Any a1 ){
