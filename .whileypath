@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<whileypath bindir="bin" runtimeassertions="true">
+  <build includes="**/*.whiley" srcdir="src" target="wyil"/>
+  <build includes="**/*.whiley" srcdir="whileytoC" target="wyil"/>
+</whileypath>

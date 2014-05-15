@@ -20,7 +20,11 @@ public class Config {
 	public static final String OUTPUT_FILE = "a.c";
 	public static final String COMPILER_h = 		"cCompiler/mattCompiler.h";
 	public static final String COMPILER_LIBRARY_c = "cCompiler/mattCompiler_library.c";
-	public static final String TEST_FILES = "whiley/testC/";
+	public static final String TEST_FILES = "whiley/_testC/";
+
+  // CODE FILES
+	public static final String CODE1  = "./whileytoC/main_leds.wyil";
+	public static final String CODE2  = "./whileytoC/main_motors.wyil";
 
   // TEST FILES
 	public static final String FILE1  = "./whiley/helloWorld.wyil"; // DONE
@@ -80,8 +84,10 @@ public class Config {
 //	public static final String FILE50 = "./whiley/typeInvariants.wyil"; //// ignore => David 29/4
 //	public static final String FILE51 = "./whiley/recursiveTypes.wyil"; //// ignore => David 29/4
 	public static final String FILE52 = "./whiley/whileMinimal.wyil";
-//	public static final String FILE53 = "./whiley/.wyil";
-//	public static final String FILE54 = "./whiley/.wyil";
+	public static final String FILE53 = "./whileytoC/main_leds.wyil";
+	public static final String FILE54 = "./whileytoC/main_motors.wyil";
+//	public static final String FILE55 = "./whiley/.wyil";
+//	public static final String FILE56 = "./whiley/.wyil";
 
 //	public static final String FILE60 = "./whiley/8_loopInvariant.wyil"; //// ignore => David 29/4
 

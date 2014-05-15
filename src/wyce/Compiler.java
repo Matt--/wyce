@@ -9,12 +9,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import wyautl_old.lang.Automaton;
 import wycc.lang.Attribute;
 import wyil.lang.Block;
 import wyil.lang.Constant;
+import wyil.lang.Modifier;
 import wyil.lang.Type;
-import wyil.lang.Type.Record.State;
 import wyil.lang.WyilFile;
 import wyil.lang.Block.Entry;
 import wyil.lang.WyilFile.Case;
@@ -23,7 +22,7 @@ import wyil.lang.WyilFile.Declaration;
 import wyil.lang.WyilFile.FunctionOrMethodDeclaration;
 import wyil.lang.WyilFile.TypeDeclaration;
 
-public class PrettyPrinter {
+public class Compiler {
 	private final int TERMINAL = 1; // terminal output : 1 => on, 0 => off
 	private final int FILE = 2;
 	private final String INDENT = Config.INDENT;
@@ -31,8 +30,12 @@ public class PrettyPrinter {
 
 	private HashMap<String,HashMap<Integer, String>> scopeCollection;
 	private boolean outputFileCreated = false;
+    private Methods c_declarations;
+	private boolean tests;
 
-	public PrettyPrinter(){
+	public Compiler(boolean tests){
+		this.tests = tests;
+		this.c_declarations = new Methods();
 		scopeCollection = new HashMap<String,HashMap<Integer, String>>();
 	}
 
@@ -47,19 +50,31 @@ public class PrettyPrinter {
 		print(TERMINAL, "# HashCode : " +wyilFile.hashCode());
 
 		print_Header(wyilFile);
-		print_methods(wyilFile);
+		print_Methods(wyilFile);
 	}
 
 	/**
 	 * Create the header information.
 	 * Included in the output .c file.
+	 * TODO pull this out, put in a congfig file
 	 */
 	private void print_Header(WyilFile wyilFile){
 		print(TERMINAL, "\n"+INDENT+INDENT +"####################################################"
 				+ "\n"+INDENT+INDENT +"### HEADER FILE ####################################\n");
-		print(TERMINAL+FILE, "#define LIBRARY_TESTING 0\n");
+		if(tests){
+			print(TERMINAL+FILE, "#define LIBRARY_TESTING true\n");
+		}else{
+			print(TERMINAL+FILE, "#define LIBRARY_TESTING false\n");
+		}
+
 		print(TERMINAL+FILE, "#include \""+Config.COMPILER_h +"\"");
 		print(TERMINAL+FILE, "#include \""+Config.COMPILER_LIBRARY_c +"\"");
+
+		if(!tests){
+			// Crazyflie include files
+			print(TERMINAL+FILE, "#include \"led.h\"");
+			print(TERMINAL+FILE, "#include \"motors.h\"\n");
+		}
 
 		print_constants(wyilFile);
 		print_types(wyilFile);
@@ -210,12 +225,12 @@ public class PrettyPrinter {
 			if(Config.isMainMethod(d))
 				print(TERMINAL, "# Main method declaration, not printed to file.");
 			else
-				print(TERMINAL+FILE, new C_Declarations(d).toString());
+				print(TERMINAL+FILE, c_declarations.createDeclaration(d));
 		}
 	}
 
 	/////////////////////// METHODS ////////////////////////////////////////////
-	private void print_methods(WyilFile wyilFile){
+	private void print_Methods(WyilFile wyilFile){
 		Collection<FunctionOrMethodDeclaration> list = wyilFile.methods();
 		print(TERMINAL, "\n"+INDENT+INDENT +"####################################################");
 		print(TERMINAL, "### Methods    : " +wyilFile.methods());
@@ -228,7 +243,16 @@ public class PrettyPrinter {
 			print(TERMINAL, "# Method name : " + method.name());
 			print(TERMINAL, "# Method isa method ? : " + method.isMethod());
 
-			String signature = new C_Declarations(method).toString();
+			if(method.hasModifier(Modifier.NATIVE)){
+				print(TERMINAL, "# Method isa NATIVE method ? : true");
+				print(TERMINAL, "# continue");
+				continue;
+			}else{
+				print(TERMINAL, "# Method isa NATIVE method ? : false");
+			}
+
+
+			String signature = c_declarations.createDeclaration(method);
 			signature = signature.substring(0, signature.length()-1);
 			signature = insertParamName(signature);
 
@@ -274,7 +298,7 @@ public class PrettyPrinter {
 			print(TERMINAL, " # Method case block attributes : " + entry.attributes().toString());
 
 			// statements within a method block
-			statements.create(entry.code, scopeCollection.get(methodName));
+			statements.create(entry.code, scopeCollection.get(methodName), c_declarations);
 
 			print(TERMINAL+FILE, INDENT +statements);
 		}

@@ -8,11 +8,11 @@ public class Tests {
 	String header = "#define LIBRARY_TESTING 0\n\n"+
 			"#include \"cCompiler/mattCompiler.h\"\n"+
 			"#include \"cCompiler/mattCompiler_library.c\"\n";//107
+	String TEST = "true";
 
 	@Test
 	public void test_file01() {
-		String[] args = {Config.FILE1};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE1} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("helloWorld");
 
@@ -21,8 +21,7 @@ public class Tests {
 	}
 	@Test
 	public void test_file02() {
-		String[] args = {Config.FILE2};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE2} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("hellocount");
 
@@ -31,8 +30,7 @@ public class Tests {
 	}
 	@Test
 	public void test_file03() {
-		String[] args = {Config.FILE3};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE3} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("fourBasicMathOps");
 
@@ -40,9 +38,8 @@ public class Tests {
 		assertEquals(expect.length(), result.length());
 	}
 	@Test
-	public void test_file04() { // TODO fails, not fleshed out
-		String[] args = {Config.FILE4};
-		Wyce.main(args);
+	public void test_file04() {
+		Wyce.main( new String[]{TEST, Config.FILE4} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("comparatorOps");
 
@@ -51,8 +48,7 @@ public class Tests {
 	}
 	@Test
 	public void test_file05() {
-		String[] args = {Config.FILE5};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE5} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("mathBrackets");
 
@@ -60,9 +56,8 @@ public class Tests {
 		assertEquals(expect.length(), result.length());
 	}
 	@Test
-	public void test_file06() { // TODO fails, not fleshed out
-		String[] args = {Config.FILE6};
-		Wyce.main(args);
+	public void test_file06() {
+		Wyce.main( new String[]{TEST, Config.FILE6} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("charOps");
 
@@ -71,8 +66,7 @@ public class Tests {
 	}
 	@Test
 	public void test_file07() {
-		String[] args = {Config.FILE7};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE7} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("stringOps");
 
@@ -81,8 +75,7 @@ public class Tests {
 	}
 	@Test
 	public void test_file08() {
-		String[] args = {Config.FILE8};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE8} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("boolOps");
 
@@ -91,8 +84,7 @@ public class Tests {
 	}
 	@Test
 	public void test_file09() {
-		String[] args = {Config.FILE9};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE9} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("3_constantDeclarations");
 
@@ -101,8 +93,7 @@ public class Tests {
 	}
 	@Test
 	public void test_file14() {
-		String[] args = {Config.FILE14};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE14} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("4_typeUnions");
 
@@ -111,8 +102,7 @@ public class Tests {
 	}
 	@Test
 	public void test_file16() {
-		String[] args = {Config.FILE16};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE16} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("4_boolTypeAndUsesArray");
 
@@ -121,8 +111,7 @@ public class Tests {
 	}
 	@Test
 	public void test_file21() {
-		String[] args = {Config.FILE21};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE21} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("4_tuples");
 
@@ -131,10 +120,27 @@ public class Tests {
 	}
 	@Test
 	public void test_file52() {
-		String[] args = {Config.FILE52};
-		Wyce.main(args);
+		Wyce.main( new String[]{TEST, Config.FILE52} );
 		String result = Config.readFile(Config.OUTPUT_FILE);
 		String expect = Config.readFile("whileMinimal");
+
+		assertEquals(expect, result);
+		assertEquals(expect.length(), result.length());
+	}
+	@Test
+	public void test_file53() {
+		Wyce.main( new String[]{"false", Config.FILE53} );
+		String result = Config.readFile(Config.OUTPUT_FILE);
+		String expect = Config.readFile("whiley_main_leds");
+
+		assertEquals(expect, result);
+		assertEquals(expect.length(), result.length());
+	}
+	@Test
+	public void test_file54() {
+		Wyce.main( new String[]{"false", Config.FILE54} );
+		String result = Config.readFile(Config.OUTPUT_FILE);
+		String expect = Config.readFile("whiley_main_motors");
 
 		assertEquals(expect, result);
 		assertEquals(expect.length(), result.length());

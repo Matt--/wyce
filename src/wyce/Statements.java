@@ -1,10 +1,11 @@
 package wyce;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import wyil.lang.Code.AbstractNaryAssignable;
 import wyil.lang.Code;
-import wyil.lang.Code.IfIs;
 import wyil.lang.Type;
 import wyil.lang.Code.AbstractAssignable;
 import wyil.lang.Code.AbstractSplitNaryAssignable;
@@ -12,14 +13,15 @@ import wyil.lang.Code.AbstractSplitNaryAssignable;
 public class Statements{
 	protected String result;
 	private HashMap<Integer, String> register;
-
+	private Methods c_declarations;
 	public Statements(){}
 
 	/*
 	 * Converts a single bytecode to mostly one, sometimes more, lines of C code.
 	 */
-	public Statements create(Code code, HashMap<Integer, String> register){
+	public Statements create(Code code, HashMap<Integer, String> register, Methods c_declarations){
 		this.register = register;
+		this.c_declarations = c_declarations;
 		this.result = generateLine(code);
 		// if tokens returned, they have already been put in register for later use {register_no, token_string}
 		if(result.startsWith("@") && code instanceof AbstractAssignable){
@@ -86,7 +88,7 @@ public class Statements{
 			result = createC(Code.OPCODE_ifgt, (Code.If) code); return result;
 		case(Code.OPCODE_ifge):
 			result = createC(Code.OPCODE_ifge, (Code.If) code); return result;
-		case(Code.OPCODE_ifis): 				// TODO issue raised, this should be ifin ?
+		case(Code.OPCODE_ifis):
 			result = createC(Code.OPCODE_ifis, (Code.IfIs) code); return result;
 		case(Code.OPCODE_ifss):
 			result = createC(Code.OPCODE_ifss, (Code.If) code); return result;
@@ -110,8 +112,8 @@ public class Statements{
 			result = createC(Code.OPCODE_lshr,  (Code.BinArithOp) code); return result;
 		case(Code.OPCODE_loop):
 			result = createC(Code.OPCODE_loop,  (Code.Loop) code); return result;
-		case(-1):								// TODO find an opcode for this case
-			result = createC(-1,	 (Code.LoopEnd) code); return result;
+		case(-1):
+			result = createC(-1,	 			(Code.LoopEnd) code); return result;
 		case(Code.OPCODE_mul):
 			result = createC(Code.OPCODE_mul,	 (Code.BinArithOp) code); return result;
 		case(Code.OPCODE_newlist):
@@ -165,18 +167,13 @@ public class Statements{
 	private String createC(int opcode, Code.Assign code){
 		// Any target = operand;
 		String r = "";
-		r += firstDeclaration(code);
-		r += PRE +code.target +SP;
-		r += "=" +SP;
-//		r += "AnyCopy(";
+		r += lhs_assignment(code);
 		r += PRE +code.operand;
-//		r += ")";
 		return r + ";";
 	}
 	private String createC(int opcode, Code.BinArithOp code){
 		String r = "";
 		switch(opcode){
-		//TODO  remainder, bitwiseor, bitwisexor, bitwiseand, leftshift, rightshift
 		case(Code.OPCODE_add):
 			// type target = constant ;
 			r += "Any" +SP;
@@ -222,26 +219,20 @@ public class Statements{
 			r += ")";
 			break;
 		case(Code.OPCODE_range):
-			if(!firstDeclaration(code).isEmpty()) r += "Any[]" +SP;
-			r += PRE +code.target +SP;
-			r += "= {";
+			if(register.containsKey(code.target)) r += "Any[]" +SP;
 			r += PRE + code.leftOperand;
 			r += "," +SP;
 			r += PRE +code.rightOperand;
 			r += "}";
 			break;
 		case(Code.OPCODE_bitwiseand):
-			// TODO test case 17
 			return "@ignore";
-			//break;
-		case(Code.OPCODE_rshr): // rightshift... I think...
-			// TODO test case 17
+		case(Code.OPCODE_rshr): // rightshift
 			return "@ignore";
-			//break;
-		case(Code.OPCODE_lshr): // leftshift... I think...
-			// TODO test case 17
+		case(Code.OPCODE_lshr): // leftshift
 			return "@ignore";
-			//break;
+		default:
+			throw new Error("Error: createC(int opCode, Code.BinArithOp), opcode not catered for.");
 		}
 		return r + ";";
 	}
@@ -253,9 +244,7 @@ public class Statements{
 			r += "Any charNowStr = toStr(";
 			r += PRE +code.rightOperand;
 			r += ");\n  "; // NB 2 space tab here
-			r += firstDeclaration(code);
-			r += PRE +code.target +SP;
-			r += "=" +SP;
+			r += lhs_assignment(code);
 			r += "Str(" +SP;
 			r += "strcat (" +SP;
 			r += PRE +code.leftOperand +".s ," +SP;
@@ -267,9 +256,7 @@ public class Statements{
 			r += "Any charNowStr = toStr(";
 			r += PRE +code.leftOperand;
 			r += ");\n  "; // NB 2 space tab here
-			r += firstDeclaration(code);
-			r += PRE +code.target +SP;
-			r += "=" +SP;
+			r += lhs_assignment(code);
 			r += "Str(" +SP;
 			r += "strcat (" +SP;
 			r += "charNowStr.s, " +SP;
@@ -279,9 +266,7 @@ public class Statements{
 			break;
 		case APPEND:
 			// strcat( a1, a2 ) concatenate onto STRING a1 STRING a2
-			r += firstDeclaration(code);
-			r += PRE +code.target +SP;
-			r += "=" +SP;
+			r += lhs_assignment(code);
 			r += "Str(" +SP;
 			r += "strcat (" +SP;
 			r += PRE +code.leftOperand +".s ," +SP;
@@ -299,9 +284,7 @@ public class Statements{
 		// All variables are "Any" structs {type.i, data}
 		case(Code.OPCODE_const):
 			// Any target = Int(constant);
-			r += firstDeclaration(code);
-			r += PRE +code.target +SP;
-			r += "=" +SP;
+			r += lhs_assignment(code);
 			switch(code.constant.type().toString()){
 			case("null"):
 				r += "Null()"; // type
@@ -416,9 +399,7 @@ public class Statements{
 		r += code.target + ";" +SP;
 		r += "}\n  ";
 
-		r += firstDeclaration(code);
-		r += PRE + code.indexOperand +SP;
-		r += "=" +SP;
+		r += lhs_assignment(code);
 		r += PRE + code.sourceOperand +"[count];\n  "; // includes a tab
 
 		r += "count++;";
@@ -498,13 +479,9 @@ public class Statements{
 	}
 	private String createC(int opcode, Code.IndexOf code){
 		String r = "";
-		r += firstDeclaration(code);
-		r += PRE +code.target +SP;
-		r += "=" +SP;
-//		r += "Int(" + SP;
+		r += lhs_assignment(code);
 		r += PRE + code.leftOperand + "[";
 		r += PRE + code.rightOperand + ".i]";
-//		r += ")";
 		return r + ";";
 	}
 	private String createC(int opcode, Code.IndirectInvoke code){
@@ -514,13 +491,14 @@ public class Statements{
 		// to determine the method needed.
 		// may not work for the general case...
 
-		// there are four variations on this.. fn, fnv, md, mdv TODO
+		// there are four variations on this.. fn, fnv, md, mdv
 		switch(opcode){
 		case(Code.OPCODE_indirectinvokemdv):
 			return "@indirectinvoke";
+		default:
+			throw new Error("ERROR: createC(), IndirectInvoke case not covered yet.");
 		}
 
-		throw new Error("IndirectInvoke case not covered yet.");
 	}
 	private String createC(int opcode, Code.Invoke code){
 		String r = "";
@@ -528,9 +506,7 @@ public class Statements{
 		switch(opcode){
 		case(Code.OPCODE_invokefn):
 		case(Code.OPCODE_invokemd):
-			r += firstDeclaration(code);
-			r += PRE +code.target +SP;
-			r += "=" +SP;
+			r += lhs_assignment(code);
 		case(Code.OPCODE_invokefnv):
 		case(Code.OPCODE_invokemdv):
 			r += idMethod(code);
@@ -544,9 +520,7 @@ public class Statements{
 	 */
 	private String createC(int opcode, Code.LengthOf code){
 		String r = "";
-		r += firstDeclaration(code);
-		r += PRE +code.target +SP;
-		r += "=" +SP;
+		r += lhs_assignment(code);
 		r += "Int(" +SP;
 		r += "sizeof(" +SP;
 		r += PRE + code.operand + SP;
@@ -570,15 +544,13 @@ public class Statements{
 		r += Config.PRE_LOOP + code.label;
 		r += ";\n  ";
 		r += code.label + ": ;";
-//		r += ";\n  ";
-//		r += "labelEnd: ;";
 		return r;
 	}
 	private String createC(int opcode, Code.NewList code){
 		// contents of the list are already defined
 		// newlist %8 = (%2, %3, %4, %5, %6, %7) : [int]
 		String r = "";
-		if(firstDeclaration(code).isEmpty())
+		if(register.containsKey(code.target))
 			new Error("error createC(int, Code.NewList), creating a new list using an existing variable name.");
 		r += "Any" +SP;
 		r += PRE + code.target +"[]" +SP;
@@ -594,15 +566,12 @@ public class Statements{
 		return r +";";
 	}
 	private String createC(int opcode, Code.NewRecord code){
-		// TODO not implemented
 		String r = "";
 		return r;
 	}
 	private String createC(int opcode, Code.NewTuple code){
 		String r = "";
-		r += firstDeclaration(code);
-		r += PRE +code.target +SP;
-		r += "=" +SP;
+		r += lhs_assignment(code);
 		switch(code.operands.length){
 		case(2):
 			r += "Tuple"; break;
@@ -641,13 +610,11 @@ public class Statements{
 	}
 	private String createC(int opcode, Code.TupleLoad code){
 		String r ="";
-		r += firstDeclaration(code);
-		r += PRE +code.target +SP;
-		r += "=" +SP;
+		r += lhs_assignment(code);
 		r += "Int(" +SP;
 		r += "((Any**)" +PRE +code.operand +".ptr)";
 		r += "[" + code.index +"]";
-		r += "->i";  // TODO will not cope with other types ie: char, real, etc.
+		r += "->i";  // will not cope with other types ie: char, real, etc.
 		r += ")"; // end Int()
 		return r + ";";
 	}
@@ -656,15 +623,23 @@ public class Statements{
 	// HELPERS
 	//=======================================>>
 	/**
-	 * Takes array, returns csv parameter list.
-	 * @param operands
-	 * @return
+	 * Creates a csv parameter list. Empty string if there are no parameters.
+	 * @param AbstractNaryAssignable<Type.FunctionOrMethod> code
+	 * @return CSV String that plugs in as a methods parameter list.
 	 */
 	private String parameters(AbstractNaryAssignable<Type.FunctionOrMethod> code){
 		String result = "";
+
+		// native parameters use int, char, pointer, etc. Not type Any.
+		// translate to type Any and call the correct value.
+		// arraylist is empty if n/a
+		ArrayList<Type> parameters = c_declarations.getNativeParameters(((Code.Invoke)code).name.name());
+		Iterator<Type> itr = parameters.iterator();
+
 		boolean first = true;
 		for(int i=0; i<code.operands.length; i++){
 			result += first ? "" : ", ";
+			first = false;
 			// invoke "println" can refer to (System.Console) =>"out" in the first operand.
 			// if so, skip it as we do not need it in the C code
 			if(((Code.Invoke)code).name.name().equals("println")
@@ -672,31 +647,51 @@ public class Statements{
 					&& register.get(code.operands[i]).equals("@out"))
 				continue;
 			result += PRE +code.operands[i];
-			first = false;
+			// add to Any type to get the correct paramater for the native method
+			if(itr.hasNext()){
+				String type = itr.next().toString().trim();
+				switch(type){
+				case("int"):
+					result += ".i"; break;
+				case("char"):
+					result += ".c"; break;
+				case("bool"):
+					result += ".b"; break;
+				default:
+					throw new Error("Error: parameters(Code), parameter type not catered for.");
+				}
+			}
 		}
 
 		return result;
 	}
 
 	// TODO make this a target method generating... [Any] a5 =
-	private String firstDeclaration(Code.AbstractAssignable code){
-		return firstDeclarationDo(code.target);
+	private String lhs_assignment(Code.AbstractAssignable code){
+		return lhs_assignment_do(code.target);
 	}
-	private String firstDeclaration(Code.ForAll code){
-		return firstDeclarationDo(code.indexOperand);
+	private String lhs_assignment(Code.ForAll code){
+		return lhs_assignment_do(code.indexOperand);
 	}
-	private String firstDeclarationDo(int c){
+	private String lhs_assignment_do(int c){
 		String r = "";
-		if(! register.containsKey(c)){
+		if( !register.containsKey(c)){
 			r += "Any" +SP;
 			register.put(c, PRE +c);
 		}
+		r += PRE + c + SP;
+		r += "=" +SP;
 		return r;
 	}
 
+	/*
+	 * Identifies special cases; Library methods, Native methods
+	 */
 	private String idMethod(Code.Invoke whileyMethod){
 		String err = "error, Code.Invoke, idMethod() ";
 		String r = "";
+
+
 		switch(whileyMethod.name.module().toString()){
 		case("whiley/lang/Any"):
 			switch(whileyMethod.name.name()){

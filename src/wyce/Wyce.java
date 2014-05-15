@@ -8,9 +8,13 @@ import wyil.lang.WyilFile;
 public class Wyce {
 
 	public static void main(String[] args){
-		String filename = Config.FILE3;
-		if(args.length > 0)
-			filename = args[0];
+		String filename = Config.FILE53;
+		boolean tests = false;
+
+		if(args.length > 0){
+			tests = Boolean.parseBoolean(args[0]);
+			filename = args[1];
+		}
 
 		WyilFile wyilFile = null;
 		try {
@@ -19,7 +23,7 @@ public class Wyce {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		new PrettyPrinter().print(wyilFile);
+		new Compiler(tests).print(wyilFile);
 	}
 
 }

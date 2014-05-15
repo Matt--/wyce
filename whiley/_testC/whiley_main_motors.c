@@ -13,14 +13,14 @@ int main (){
   motorsInit (  );
   Any a2 = Int(0);
   motorsTestTask ( a2.i );
-  loop_start_label132: ;
+  loop_start_label0: ;
   Any a4 = Bool(true);
-  if ( dataAsInt( a0 ) == dataAsInt( a4 ) ) { goto label133; };
-  goto label132;
-  label133: ;
+  if ( dataAsInt( a0 ) == dataAsInt( a4 ) ) { goto label1; };
+  goto label0;
+  label1: ;
   Any a5 = Bool(true);
   a0 = a5;
-  goto loop_start_label132;
-  label132: ;
+  goto loop_start_label0;
+  label0: ;
   return 0;
 }

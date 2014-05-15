@@ -179,6 +179,7 @@ Any toStr(Any a){
 		return b;
 	}
 	error(1, "error, toStr(Any); type unknown");
+
 	return Str("");
 }
 
@@ -188,7 +189,11 @@ int dataAsInt(Any a){
 	if(a.type == CHAR_TYPE){ return (int)a.c; }
 //	if(a.type == STR_TYPE){ int r = (int)a.s; return r; } //NB pointer cast to int
 	if(a.type == BOOL_TYPE){ return (int)a.b; }
+
+	#if(LIBRARY_TESTING)
 	error(1, "error, dataAsInt(Any); type unknown");
+	#endif
+
 	return 0;
 }
 
@@ -231,6 +236,7 @@ Any Copy(Any a)
 // end Data struct types
 
 //// Helpers
+#if(LIBRARY_TESTING)
 void println(Any a)
 {
     if(a.type == INT_TYPE){
@@ -245,7 +251,6 @@ void println(Any a)
       printf("false\n"); }
     else if (a.type == BOOL_TYPE && a.b == 1){
       printf("true\n"); }
-
 }
 
 void error(int error_no, char c [200])
@@ -254,6 +259,7 @@ void error(int error_no, char c [200])
   if(!LIBRARY_TESTING) { exit(error_no); }
   //exit(error_no);
 }
+#endif
 // end Helpers
 
 
