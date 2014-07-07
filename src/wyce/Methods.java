@@ -41,9 +41,13 @@ public class Methods {
 
 	private String createDeclaration(String name, FunctionOrMethod declaration){
 		String r = "";
-		// returnType fName ( param1, param2 ) ;
-		r += name.equals("main") ? "int" +SP: "Any" +SP; //dec.ret() +SP
-		r += name +SP; // type
+		r += name.equals("main") ? "int" :
+			declaration.ret() instanceof Type.Void ? "void" :
+			declaration.ret() instanceof Type.Real ? "Any" :
+			declaration.ret() instanceof Type.Strung ? "Any" :
+			declaration.ret() instanceof Type.List ? "Any*" :
+				declaration.ret();
+		r += SP+ name +SP; // type
 		r += "(" +SP;
 		if(!name.equals("main")){
 			Iterator<Type> itr = declaration.params().iterator();

@@ -8,8 +8,8 @@ import wyil.lang.WyilFile;
 public class Wyce {
 
 	public static void main(String[] args){
-		String filename = Config.FILE53;
-		boolean tests = false;
+		String filename = Config.FILE16;
+		boolean tests = true;
 
 		if(args.length > 0){
 			tests = Boolean.parseBoolean(args[0]);

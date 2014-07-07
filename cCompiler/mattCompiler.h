@@ -12,6 +12,7 @@
 #define REAL_TYPE 5
 #define BYTE_TYPE 6
 #define TUPLE_TYPE 7
+#define POINTER_TYPE 8
 
 #define MAXCHAR 40
 

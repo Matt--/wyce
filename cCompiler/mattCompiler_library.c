@@ -24,6 +24,13 @@ Any Char(char c)
 	a.type = CHAR_TYPE;
 	return a;
 }
+Any Ptr( void *c)
+{
+	Any a;
+	a.ptr = c;
+	a.type = POINTER_TYPE;
+	return a;
+}
 Any Str(char* s)
 {
 	if(strlen(s) > MAXCHAR) {
@@ -200,34 +207,61 @@ int dataAsInt(Any a){
 //// Math operations
 Any add(Any x, Any y)
 {
-    if(x.type != INT_TYPE || y.type != INT_TYPE){
-    	error(1, "method failed, not adding these ints : Any add(Any, Any)");
-    }
-    return Int(x.i + y.i);
+	if(x.type != y.type){
+		error(1, "method error, adding two different types : Any add(Any, Any)");}
+	switch(x.type){
+	case INT_TYPE:	return Int(x.i + y.i);
+	case REAL_TYPE:	return Real(x.r + y.r);
+	default:
+		error(1, "method failed, cannot add this type : Any add(Any, Any)");
+	}
 }
 Any sub(Any x, Any y)
 {
-    if(x.type != INT_TYPE || y.type != INT_TYPE){
-      error(1, "method failed, not subtracting ints : Any sub(Any, Any)");
-    }
-    return Int(x.i - y.i);
+	if(x.type != y.type){
+		error(1, "method error, adding two different types : Any add(Any, Any)");}
+	switch(x.type){
+	case INT_TYPE:	return Int(x.i - y.i);
+	case REAL_TYPE:	return Real(x.r - y.r);
+	default:
+		error(1, "method failed, cannot subtract this type : Any sub(Any, Any)");
+	}
+}
+Any neg(Any x)
+{
+	switch(x.type){
+	case INT_TYPE:	return Int(-x.i);
+	case REAL_TYPE:	return Real(-x.r);
+	default:
+		error(1, "method failed, cannot establish negative for this type : Any neg(Any)");
+	}
 }
 Any mul(Any x, Any y)
 {
-    if(x.type != INT_TYPE || y.type != INT_TYPE){
-      error(1, "method failed, not multiplying ints : Any mul(Any, Any)");
-    }
-    return Int(x.i * y.i);
+	if(x.type != y.type){
+		error(1, "method error, adding two different types : Any add(Any, Any)");}
+	switch(x.type){
+	case INT_TYPE:	return Int(x.i * y.i);
+	case REAL_TYPE:	return Real(x.r * y.r);
+	default:
+		error(1, "method failed, cannot multiply this type : Any mul(Any, Any)");
+	}
 }
 Any div_wyce(Any x, Any y)
 {
-    if(x.type != INT_TYPE || y.type != INT_TYPE){
-      error(1, "method failed, not dividing ints : Any div(Any, Any)");
-    }
-    if(y.i == 0){
-      error(1, "method failed, divisor == 0 : Any div(Any, Any)");
-    }
-    return Int(x.i / y.i);
+	if(x.type != y.type){
+		error(1, "method error, adding two different types : Any add(Any, Any)");}
+
+	switch(x.type){
+	case INT_TYPE:
+		if(y.i == 0){ error(1, "method failed, divisor == 0 : Any div(Any, Any)");}
+		return Int(x.i / y.i);
+	case REAL_TYPE:
+		if(y.r == 0){ error(1, "method failed, divisor == 0 : Any div(Any, Any)");}
+		return Real(x.r / y.r);
+	default:
+		error(1, "method failed, cannot divide this type : Any div(Any, Any)");
+	}
 }
 Any Copy(Any a)
 {

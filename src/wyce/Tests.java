@@ -145,6 +145,25 @@ public class Tests {
 		assertEquals(expect, result);
 		assertEquals(expect.length(), result.length());
 	}
+	@Test
+	public void test_file55() {
+		Wyce.main( new String[]{TEST, Config.FILE55} );
+		String result = Config.readFile(Config.OUTPUT_FILE);
+		String expect = Config.readFile("arrays");
+
+		assertEquals(expect, result);
+		assertEquals(expect.length(), result.length());
+	}
+
+	@Test
+	public void test_file56() {
+		Wyce.main( new String[]{TEST, Config.FILE56} );
+		String result = Config.readFile(Config.OUTPUT_FILE);
+		String expect = Config.readFile("void_returnType");
+
+		assertEquals(expect, result);
+		assertEquals(expect.length(), result.length());
+	}
 
 
 }

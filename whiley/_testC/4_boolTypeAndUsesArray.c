@@ -2,7 +2,7 @@
 
 #include "cCompiler/mattCompiler.h"
 #include "cCompiler/mattCompiler_library.c"
-Any contains ( Any[] , Any , Any );
+bool contains ( Any[] , Any , Any );
 
 int main (){
   Any a2 = Int(1);
@@ -14,7 +14,7 @@ int main (){
   Any a8[] = {a2, a3, a4, a5, a6, a7};
   Any a13 = Int( sizeof( a8 ) / sizeof( a8[0] ) );
   Any a14 = Int(1);
-  Any a10 = contains ( a8, a13, a14 );
+  Any a10 = Bool(contains ( a8, a13, a14 ));
   Any a9 = a10;
   Any a18 = Str("list contains 1 => ");
   Any a19 = a9;
@@ -23,7 +23,7 @@ int main (){
   println ( a20 );
   Any a24 = Int( sizeof( a8 ) / sizeof( a8[0] ) );
   Any a25 = Int(6);
-  Any a21 = contains ( a8, a24, a25 );
+  Any a21 = Bool(contains ( a8, a24, a25 ));
   a9 = a21;
   Any a29 = Str("list contains 6 => ");
   Any a30 = a9;
@@ -32,7 +32,7 @@ int main (){
   println ( a31 );
   Any a35 = Int( sizeof( a8 ) / sizeof( a8[0] ) );
   Any a36 = Int(0);
-  Any a32 = contains ( a8, a35, a36 );
+  Any a32 = Bool(contains ( a8, a35, a36 ));
   a9 = a32;
   Any a40 = Str("list contains 0 => ");
   Any a41 = a9;
@@ -41,7 +41,7 @@ int main (){
   println ( a42 );
   Any a46 = Int( sizeof( a8 ) / sizeof( a8[0] ) );
   Any a47 = Int(7);
-  Any a43 = contains ( a8, a46, a47 );
+  Any a43 = Bool(contains ( a8, a46, a47 ));
   a9 = a43;
   Any a51 = Str("list contains 7 => ");
   Any a52 = a9;
@@ -51,7 +51,7 @@ int main (){
   return 0;
 }
 
-Any contains ( Any a0[], Any arraySize, Any a2 ){
+bool contains ( Any a0[], Any arraySize, Any a2 ){
   int count = 0;
   loop_start_label0: ;
   if(count == arraySize.i ){ goto label0; }
@@ -59,10 +59,10 @@ Any contains ( Any a0[], Any arraySize, Any a2 ){
   count++;
   if ( dataAsInt( a4 ) != dataAsInt( a2 ) ) { goto label1; };
   Any a7 = Bool(true);
-  return a7;
+  return a7.b;
   label1: ;
   goto loop_start_label0;
   label0: ;
   Any a8 = Bool(false);
-  return a8;
+  return a8.b;
 }

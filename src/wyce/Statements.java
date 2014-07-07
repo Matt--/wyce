@@ -3,6 +3,7 @@ package wyce;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 import wyil.lang.Code.AbstractNaryAssignable;
 import wyil.lang.Code;
@@ -106,6 +107,8 @@ public class Statements{
 			result = createC(Code.OPCODE_invokemd,(Code.Invoke) code); return result;
 		case(Code.OPCODE_invokemdv):
 			result = createC(Code.OPCODE_invokemdv,(Code.Invoke) code); return result;
+		case(Code.OPCODE_lambdamd):
+			result = createC(Code.OPCODE_lambdamd,  (Code.Lambda) code); return result;
 		case(Code.OPCODE_lengthof):
 			result = createC(Code.OPCODE_lengthof,  (Code.LengthOf) code); return result;
 		case(Code.OPCODE_lshr):
@@ -116,6 +119,8 @@ public class Statements{
 			result = createC(-1,	 			(Code.LoopEnd) code); return result;
 		case(Code.OPCODE_mul):
 			result = createC(Code.OPCODE_mul,	 (Code.BinArithOp) code); return result;
+		case(Code.OPCODE_neg):
+			result = createC(Code.OPCODE_neg,	 (Code.UnArithOp) code); return result;
 		case(Code.OPCODE_newlist):
 			result = createC(Code.OPCODE_newlist,	 (Code.NewList) code); return result;
 		case(Code.OPCODE_newrecord):
@@ -165,10 +170,13 @@ public class Statements{
 		return "@ignore";
 	}
 	private String createC(int opcode, Code.Assign code){
-		// Any target = operand;
 		String r = "";
+		// Any target = operand;
 		r += lhs_assignment(code);
-		r += PRE +code.operand;
+		// case where a method parameter is not in the register, this will bite or be fixed later
+		// ref Compiler.jave ln 324
+//		r += register.get(code.operand) == null ? PRE + code.operand : register.get(code.operand);
+		r += register.get(code.operand);
 		return r + ";";
 	}
 	private String createC(int opcode, Code.BinArithOp code){
@@ -176,9 +184,7 @@ public class Statements{
 		switch(opcode){
 		case(Code.OPCODE_add):
 			// type target = constant ;
-			r += "Any" +SP;
-			r += PRE +code.target +SP;
-			r += "=" +SP;
+			r += lhs_assignment(code);
 			r += "add(" +SP;
 			r += PRE +code.leftOperand +SP;
 			r += "," +SP;
@@ -187,9 +193,7 @@ public class Statements{
 			break;
 		case(Code.OPCODE_sub):
 			// type target = constant ;
-			r += "Any" +SP;
-			r += PRE +code.target +SP;
-			r += "=" +SP;
+			r += lhs_assignment(code);
 			r += "sub(" +SP;
 			r += PRE +code.leftOperand +SP;
 			r += "," +SP;
@@ -198,9 +202,7 @@ public class Statements{
 			break;
 		case(Code.OPCODE_mul):
 			// type target = constant ;
-			r += "Any" +SP;
-			r += PRE +code.target +SP;
-			r += "=" +SP;
+			r += lhs_assignment(code);
 			r += "mul(" +SP;
 			r += PRE +code.leftOperand +SP;
 			r += "," +SP;
@@ -209,9 +211,7 @@ public class Statements{
 			break;
 		case(Code.OPCODE_div):
 			// type target = constant ;
-			r += "Any" +SP;
-			r += PRE +code.target +SP;
-			r += "=" +SP;
+			r += lhs_assignment(code);
 			r += "div_wyce(" +SP;
 			r += PRE +code.leftOperand +SP;
 			r += "," +SP;
@@ -506,13 +506,31 @@ public class Statements{
 		switch(opcode){
 		case(Code.OPCODE_invokefn):
 		case(Code.OPCODE_invokemd):
-			r += lhs_assignment(code);
+			r += lhs_assignment(code); // TODO
 		case(Code.OPCODE_invokefnv):
 		case(Code.OPCODE_invokemdv):
 			r += idMethod(code);
 		}
+//		// if there is an extra left bracket, added by lhs_assignment_do, add a right bracket
+//		String s = r;
+//		int left =  s.length() - s.replace("(", "").length();
+//		int right = s.length() - s.replace(")", "").length();
+//		if(left == right+1){ r+= " )";}
 		return r + ";";
 	}
+
+	private String createC(int opcode, Code.Lambda code){
+		String r = "";
+		r += "Any a2 = Ptr( ";
+		r += "&" + code.name.name();
+		r += " );";
+
+
+
+
+		return r;
+	}
+
 	/*
 	 * lengthof
 	 * In C length of an array is size of the array divided by the size of the first element
@@ -543,7 +561,7 @@ public class Statements{
 		r += "goto" +SP;
 		r += Config.PRE_LOOP + code.label;
 		r += ";\n  ";
-		r += code.label + ": ;";
+		r += code.label + ": ;"; // TODO, need this for if statements, but causes gcc warnings in while(true) statements
 		return r;
 	}
 	private String createC(int opcode, Code.NewList code){
@@ -552,6 +570,7 @@ public class Statements{
 		String r = "";
 		if(register.containsKey(code.target))
 			new Error("error createC(int, Code.NewList), creating a new list using an existing variable name.");
+		register.put(code.target, PRE+ code.target);
 		r += "Any" +SP;
 		r += PRE + code.target +"[]" +SP;
 		r += "=" +SP;
@@ -597,14 +616,25 @@ public class Statements{
 		return r;
 	}
 	private String createC(int opcode, Code.Return code){
-		// return ; OR return operand ;
+		// if return type is void, do nothing
+		if(code.type == Type.Void.T_VOID){
+			return ""; }
 		String r = "";
 		r += "return" +SP;
-		switch(opcode){
-		case(1):
-			r += "0"; break;
-		case(Code.OPCODE_return):
-			r += PRE +code.operand; break;
+		r += PRE +code.operand;
+		switch(code.type.toString()){
+		case("Any"):
+			 break;
+		case("int"):
+			 r += ".i"; break;
+		case("real"):
+			 r += ".r"; break;
+		case("string"):
+			 r += ".s"; break;
+		case("bool"):
+			 r += ".b"; break;
+		default:
+			new Error("Return operation code not captured.");
 		}
 		return r + ";";
 	}
@@ -617,6 +647,12 @@ public class Statements{
 		r += "->i";  // will not cope with other types ie: char, real, etc.
 		r += ")"; // end Int()
 		return r + ";";
+	}
+	private String createC(int opCode,	Code.UnArithOp code){
+		String r = "";
+		r += lhs_assignment(code);
+		r += "neg("+PRE+code.operand+")";
+		return r+";";
 	}
 
 	//=============================================
@@ -657,7 +693,25 @@ public class Statements{
 					result += ".c"; break;
 				case("bool"):
 					result += ".b"; break;
+				case("real"):
+					result += ".r"; break;
+				case("string"):
+					result += ".s"; break;
 				default:
+					if(type.matches("method.*")){ // lambda address
+						result += ""; break; // just pass through the Any
+					}
+					String sr, si, sc, sb;
+					sr = Pattern.quote("[real]");
+					si = Pattern.quote("[int]");
+					sc = Pattern.quote("[char]");
+					sb = Pattern.quote("[bool]");
+					if(		type.matches(sr) ||
+							type.matches(si) ||
+							type.matches(sc) ||
+							type.matches(sb)){
+						result += ""; break;
+					}
 					throw new Error("Error: parameters(Code), parameter type not catered for.");
 				}
 			}
@@ -668,19 +722,30 @@ public class Statements{
 
 	// TODO make this a target method generating... [Any] a5 =
 	private String lhs_assignment(Code.AbstractAssignable code){
-		return lhs_assignment_do(code.target);
+		// is this an array - yes then "a6[] =" else "a6 ="
+		boolean invokingMethod = false;
+		String m = code.toString();
+		if(m.contains("method")){ invokingMethod = true; }
+		boolean assigningArray = false;
+		String r = code.assignedType().toString();
+		if(r.contains("[int]") || r.contains("[real]")){ assigningArray = true; }
+
+		return lhs_assignment_do(code.target, invokingMethod, assigningArray);
 	}
 	private String lhs_assignment(Code.ForAll code){
-		return lhs_assignment_do(code.indexOperand);
+		return lhs_assignment_do(code.indexOperand, false, false);
 	}
-	private String lhs_assignment_do(int c){
+	private String lhs_assignment_do(int c, boolean invokingMethod, boolean assigningArray){
 		String r = "";
 		if( !register.containsKey(c)){
 			r += "Any" +SP;
-			register.put(c, PRE +c);
+			r += assigningArray ? "*" : "";
+			register.put(c, (invokingMethod && assigningArray ? "" : "")+PRE+ c); // TODO tidy?
 		}
-		r += PRE + c + SP;
-		r += "=" +SP;
+		r += PRE + c;
+//		r +=  invokingMethod && assigningArray ? "[]" : "";
+		r += SP+ "=" +SP;
+//		r +=  invokingMethod && assigningArray ? "Ptr( " : "";
 		return r;
 	}
 
@@ -718,10 +783,20 @@ public class Statements{
 			}
 		// not a library function or method
 		default:
+			// assuming a declared native method, returning a C primitive, wrap it in a Any constructor
+			boolean constructor = false;
+			String returnType = whileyMethod.assignedType().toString();
+			if		(returnType.equals("int")){    constructor = true; r += "Int("; }
+			else if	(returnType.equals("bool")){   constructor = true; r += "Bool("; }
+			else if	(returnType.equals("string")){ /*no constructor needed*/ }
+			else if	(returnType.equals("[real]")){ /*no constructor needed*/ }
+			else if	(!returnType.equals("void")){
+				new Error (err + "invoke bytecode, return type not yet catered for."); }
 			r += whileyMethod.name.name() +SP;
 			r += "(" +SP;
 			r += parameters(whileyMethod) +SP;
 			r += ")";
+			r += constructor ? ")" : "";
 		}
 		return r;
 	}

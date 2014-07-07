@@ -72,8 +72,9 @@ public class Compiler {
 
 		if(!tests){
 			// Crazyflie include files
-			print(TERMINAL+FILE, "#include \"led.h\"");
-			print(TERMINAL+FILE, "#include \"motors.h\"\n");
+//			print(TERMINAL+FILE, "#include \"led.h\"");
+//			print(TERMINAL+FILE, "#include \"motors.h\"\n");
+			print(TERMINAL+FILE, "#include \""+Config.CRAZYFLIE_LIB_c +"\"" + "\n");
 		}
 
 		print_constants(wyilFile);
@@ -116,7 +117,7 @@ public class Compiler {
 		String r = "";
 		Iterator<TypeDeclaration> itr = wyilFile.types().iterator();
 		while(itr.hasNext()){
-			r += "const" +SP;
+			r += "typedef" +SP;
 			TypeDeclaration decl = itr.next();
 			Type type = decl.type();
 			if  (type instanceof Type.Int){ r += "int" +SP; }
@@ -130,9 +131,8 @@ public class Compiler {
 				// this method deals with the generation
 				print(TERMINAL+FILE, generateUnionType(decl)); continue; }
 			else throw new Error("type error, not yet allowed for.");
-			r += decl.name() +SP;
-			r += "=" +SP;
-			r += type +SP;
+
+			r += decl.name();
 			r += ";\n";
 		}
 		print(TERMINAL+FILE, r);
@@ -254,11 +254,11 @@ public class Compiler {
 
 			String signature = c_declarations.createDeclaration(method);
 			signature = signature.substring(0, signature.length()-1);
-			signature = insertParamName(signature);
 
 			// each method gets its own register of variable names
 			HashMap<Integer, String> register = new HashMap<Integer, String>();
 			register.put(Integer.MAX_VALUE, "new scope");
+			signature = insertParamName(signature, register);
 			scopeCollection.put(method.name(), register);
 
 			// method name and block
@@ -300,7 +300,13 @@ public class Compiler {
 			// statements within a method block
 			statements.create(entry.code, scopeCollection.get(methodName), c_declarations);
 
-			print(TERMINAL+FILE, INDENT +statements);
+			if(methodName.equals("main") && entry.code.toString().equals("return")){
+				// Whiley main has a void return. C main has an int return
+				print(TERMINAL+FILE, INDENT +"return 0;");
+			} else {
+				String indent = statements.result.isEmpty() ? "" : INDENT;
+				print(TERMINAL+FILE, indent +statements);
+			}
 		}
 	}
 
@@ -308,7 +314,7 @@ public class Compiler {
 	/** Inserts parameter names into a method signature.
 	 *  TODO currently uses a0, a1, a2... for parameter names, might be a problem later?
 	 */
-	private String insertParamName(String sig){
+	private String insertParamName(String sig, HashMap<Integer, String> register){
 		//if(sig.startsWith("main")) return "";
 		String params = sig.substring(sig.indexOf("(")+1, sig.length()-2).trim();
 		if(!params.equals("")){
@@ -316,6 +322,7 @@ public class Compiler {
 			String[] tokens = params.split(",");
 			// tidy up tokens, add the var name
 			while(i< tokens.length){
+				register.put(i, "a" + i); // TODO #################
 				String token = tokens[i].trim();
 				int index = token.indexOf("[]");
 				if(index == -1){
@@ -337,6 +344,7 @@ public class Compiler {
 			// recreate the param list
 			boolean first = true;
 			while(i< tokens.length){
+
 				params += first ? "" : ", ";
 				params += tokens[i++];
 				first = false;
